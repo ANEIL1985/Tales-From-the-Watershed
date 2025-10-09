@@ -20,6 +20,21 @@
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
+    // Add watershed boundary
+fetch("https://services2.arcgis.com/S8zZg9pg23JUEexQ/arcgis/rest/services/HYDRO_Watersheds_HUC12/FeatureServer/6/query?where=OBJECTID=8&outFields=*&f=geojson")
+  .then(response => response.json())
+  .then(data => {
+    L.geoJSON(data, {
+      style: {
+        color: "#1e40af",        // deep blue outline
+        weight: 2,
+        fillColor: "#60a5fa",    // lighter blue fill
+        fillOpacity: 0.2
+      }
+    }).addTo(map);
+  })
+  .catch(error => console.error("Error loading watershed:", error));
+    
     // Add a sample story point
     L.marker([41.5, -71.45]).addTo(map)
       .bindPopup("<b>The River Mouth</b><br>A short story about tides and time.")
