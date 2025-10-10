@@ -58,7 +58,8 @@
     background: white;
     box-shadow: -3px 0 10px rgba(0,0,0,0.3);
     overflow-y: auto;
-    padding: 20px 20px 60px 20px;
+    padding: 20px 20px 100px 20px;
+    overflow-y: auto;
     transition: right 0.3s ease;
     z-index: 1001;
   }
@@ -69,19 +70,20 @@
 
   /* Toggle button */
   #toggleSidebar {
-    position: absolute;
-    top: 20px;
-    left: -25px;
-    width: 25px;
-    height: 50px;
-    background: #003366;
-    color: white;
-    border: none;
-    border-radius: 0 5px 5px 0;
-    cursor: pointer;
-    font-size: 18px;
-    z-index: 1002;
-  }
+    #toggleSidebar {
+  position: absolute;
+  top: 20px;
+  left: -25px; /* outside sidebar */
+  width: 25px;
+  height: 50px;
+  background: #003366;
+  color: white;
+  border: none;
+  border-radius: 0 5px 5px 0;
+  cursor: pointer;
+  font-size: 18px;
+  z-index: 1002;
+}
 
   /* Story list in sidebar */
   #storyList {
@@ -165,13 +167,13 @@
 
   <!-- Sidebar -->
   <div id="sidebar" class="sidebar open">
-    <button id="toggleSidebar">&#9664;</button>
-    <div id="storyList"></div>
-    <div id="sidebarContent">
-      <h2>Welcome to The Pettasquamscutt Chronicle</h2>
-      <p>Click a story on the map or in the list below to read the full tale.</p>
-    </div>
+  <button id="toggleSidebar">&#9664;</button> <!-- arrow button -->
+  <div id="storyList"></div>
+  <div id="sidebarContent">
+    <h2>Welcome to The Pettasquamscutt Chronicle</h2>
+    <p>Click a story on the map or in the list below to read the full tale.</p>
   </div>
+</div>
 
   <!-- About button -->
   <button id="aboutButton">i</button>
@@ -234,19 +236,20 @@
 
     stories.sort((a,b) => new Date(a.date) - new Date(b.date));
 
-    const markers = [];
+ onst markers = [];
 
-    // Add markers
-    stories.forEach((story, index) => {
-      const popupContent = `<b>${story.title}</b><br>${story.date}<br><a href="#" class="readMoreLink" data-index="${index}">Read Story</a>`;
-      const marker = L.circleMarker(story.coords, {
-  radius: 10,            // size of the point
-  color: '#FF00FF',      // neon pink border
-  fillColor: '#FF69B4',  // neon pink fill
-  fillOpacity: 0.9,
-  weight: 2
-}).addTo(map).bindPopup(popupContent);
-    });
+stories.forEach((story, index) => {
+  const popupContent = `<b>${story.title}</b><br>${story.date}<br><a href="#" class="readMoreLink" data-index="${index}">Read Story</a>`;
+  const marker = L.circleMarker(story.coords, {
+    radius: 10,
+    color: '#FF00FF',
+    fillColor: '#FF69B4',
+    fillOpacity: 0.9,
+    weight: 2
+  }).addTo(map).bindPopup(popupContent);
+
+  markers.push(marker); // <- store the marker for later reference
+});
 
     // Sidebar elements
     const sidebar = document.getElementById('sidebar');
@@ -284,10 +287,10 @@
 
     // Toggle sidebar
     toggleBtn.onclick = () => {
-      sidebar.classList.toggle('open');
-      sidebar.classList.toggle('collapsed');
-      toggleBtn.innerHTML = sidebar.classList.contains('open') ? '&#9664;' : '&#9654;';
-    };
+  sidebar.classList.toggle('open');
+  sidebar.classList.toggle('collapsed');
+  toggleBtn.innerHTML = sidebar.classList.contains('open') ? '&#9664;' : '&#9654;';
+};
 
     // About button toggle
     const aboutButton = document.getElementById("aboutButton");
