@@ -177,9 +177,9 @@
   <button id="aboutButton">i</button>
   <div id="aboutPopup">
     <p><strong>About the Chronicle:</strong><br>
-    All stories within <em>The Pettasquamscutt Chronicle</em> are works of fiction by Andrew Neil. 
+    All stories within <em>The Pettasquamscutt Chronicle</em> are works of fiction. 
     Each tale draws inspiration from the watershed’s landscape, history, and imagination, 
-    reminding us that the water remembers what we forget.</p>
+    reminding us that the water remembers what we forget.  neilion22@gmail.com </p>
   </div>
 
   <!-- Leaflet JS -->
@@ -239,8 +239,13 @@
     // Add markers
     stories.forEach((story, index) => {
       const popupContent = `<b>${story.title}</b><br>${story.date}<br><a href="#" class="readMoreLink" data-index="${index}">Read Story</a>`;
-      const marker = L.marker(story.coords).addTo(map).bindPopup(popupContent);
-      markers.push(marker);
+      const marker = L.circleMarker(story.coords, {
+  radius: 10,            // size of the point
+  color: '#FF00FF',      // neon pink border
+  fillColor: '#FF69B4',  // neon pink fill
+  fillOpacity: 0.9,
+  weight: 2
+}).addTo(map).bindPopup(popupContent);
     });
 
     // Sidebar elements
