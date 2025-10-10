@@ -52,7 +52,7 @@
   .sidebar {
     position: fixed;
     top: 0;
-    right: -400px; /* start hidden */
+    right: 0;
     width: 400px;
     height: 100%;
     background: white;
@@ -63,20 +63,24 @@
     z-index: 1001;
   }
 
-  .sidebar.open {
-    right: 0; /* slide in */
-  }
-
   .sidebar.collapsed {
-    right: -350px; /* small peek */
+    right: -350px;
   }
 
-  #closeSidebar {
-    background: none;
+  /* Toggle button */
+  #toggleSidebar {
+    position: absolute;
+    top: 20px;
+    left: -25px;
+    width: 25px;
+    height: 50px;
+    background: #003366;
+    color: white;
     border: none;
-    font-size: 24px;
-    float: right;
+    border-radius: 0 5px 5px 0;
     cursor: pointer;
+    font-size: 18px;
+    z-index: 1002;
   }
 
   /* Story list in sidebar */
@@ -160,10 +164,13 @@
   <div id="map"></div>
 
   <!-- Sidebar -->
-  <div id="sidebar" class="sidebar collapsed">
-    <button id="closeSidebar">&times;</button>
+  <div id="sidebar" class="sidebar open">
+    <button id="toggleSidebar">&#9664;</button>
     <div id="storyList"></div>
-    <div id="sidebarContent"></div>
+    <div id="sidebarContent">
+      <h2>Welcome to The Pettasquamscutt Chronicle</h2>
+      <p>Click a story on the map or in the list below to read the full tale.</p>
+    </div>
   </div>
 
   <!-- About button -->
@@ -193,32 +200,18 @@
         title: "What Lurks Beneath",
         date: "04/10/2024",
         coords: [41.5134394329345, -71.44777572841639],
-        content: `
-          <p>As the sun cast its first golden rays over the tranquil waters of the Pettasquamscutt Estuary, Evelyn stood at the edge of her dock...</p>
-          <p>The Upper Pond, Evelyn's sanctuary, was a marvel of nature...</p>
-          <p>Clutching her overturned kayak, Evelyn fought to regain her composure...</p>
-        `
+        content: `<p>As the sun cast its first golden rays over the tranquil waters of the Pettasquamscutt Estuary...</p>`
       },
       {
         title: "The Howling",
         date: "10/10/2024",
         coords: [41.516, -71.45],
-        content: `
-          <p>The car struck the beast with a sickening crunch, sending it sprawling across the road...</p>
-          <p>She approached cautiously, her breath visible in the cold night air...</p>
-          <p>By the following spring, life returned to normal...</p>
-          <p>Then she heard it. Low and guttural at first, but unmistakable. A howl...</p>
-          <p>Her blood ran cold. She stepped back inside and bolted the door...</p>
-          <p>In the moonlight, far across the river, she swore she saw them—shapes moving...</p>
-          <p><strong>This time, she knew, it wasn’t over.</strong></p>
-        `
+        content: `<p>The car struck the beast with a sickening crunch...</p>`
       }
     ];
 
-    // Sort stories by date (oldest first)
     stories.sort((a,b) => new Date(a.date) - new Date(b.date));
 
-    // Markers array
     const markers = [];
 
     // Add markers
@@ -232,7 +225,7 @@
     const sidebar = document.getElementById('sidebar');
     const sidebarContent = document.getElementById('sidebarContent');
     const storyListDiv = document.getElementById('storyList');
-    const closeSidebarBtn = document.getElementById('closeSidebar');
+    const toggleBtn = document.getElementById('toggleSidebar');
 
     // Populate story list
     stories.forEach((story, index) => {
@@ -262,11 +255,12 @@
       }
     });
 
-    // Close sidebar
-    closeSidebarBtn.onclick = () => {
-      sidebar.classList.remove('open');
-      sidebar.classList.add('collapsed');
-    }
+    // Toggle sidebar
+    toggleBtn.onclick = () => {
+      sidebar.classList.toggle('open');
+      sidebar.classList.toggle('collapsed');
+      toggleBtn.innerHTML = sidebar.classList.contains('open') ? '&#9664;' : '&#9654;';
+    };
 
     // About button toggle
     const aboutButton = document.getElementById("aboutButton");
@@ -281,15 +275,10 @@
       .then(response => response.json())
       .then(data => {
         L.geoJSON(data, {
-          style: {
-            color: "#00BFFF",
-            weight: 2,
-            fillOpacity: 0.1
-          }
+          style: { color: "#00BFFF", weight: 2, fillOpacity: 0.1 }
         }).addTo(map);
       })
       .catch(err => console.error("Watershed load error:", err));
   </script>
 </body>
 </html>
-
