@@ -235,24 +235,36 @@
 
     // Add markers (neon pink circle markers)
 
+/ Add markers to the map
 stories.forEach((story, index) => {
-  const popupContent = `<b>${story.title}</b><br>${story.date}<br><a href="#" class="readMoreLink" data-index="${index}">Read Story</a>`;
-  const markers = L.circleMarker(story.coords, {
-    radius: 10,
-    color: '#FF00FF',
-    fillColor: '#FF69B4',
+  // Create popup content
+  const popupContent = `
+    <b>${story.title}</b><br>
+    ${story.date}<br>
+    <a href="#" class="readMoreLink" data-index="${index}">Read Story</a>
+  `;
+
+  // Create the marker
+  const marker = L.circleMarker(story.coords, {
+    radius: 10,             // marker size
+    color: '#FF00FF',       // neon pink border
+    fillColor: '#FF69B4',   // neon pink fill
     fillOpacity: 0.9,
     weight: 2
-  }).addTo(map).bindPopup(popupContent);
+  }).addTo(map);
 
-  markers.push(markers); // <- store the marker for later reference
-});
-      // subtle hover enlarge
-      marker.on('mouseover', function(){ this.setStyle({ radius: 14 }); });
-      marker.on('mouseout', function(){ this.setStyle({ radius: 10 }); });
+  // Bind popup to marker
+  marker.bindPopup(popupContent);
 
-      markers.push(markers);
-    });
+  // Event listener: handle “Read Story” click
+  marker.on('popupopen', () => {
+    const link = document.querySelector('.readMoreLink[data-index="' + index + '"]');
+    if (link) {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        openStory(index); // your existing function to open the sidebar and show the story
+        map.setView(story.coords, 15);
+      });
 
     // Sidebar elements
     const sidebar = document.getElementById('sidebar');
