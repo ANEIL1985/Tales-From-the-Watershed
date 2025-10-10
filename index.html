@@ -126,4 +126,86 @@
   </div>
 
   <!-- About button and popup -->
-  <button id="aboutButton">i</bu
+  <button id="aboutButton">i</button>
+  <div id="aboutPopup">
+    <p><strong>About the Chronicle:</strong><br>
+    All stories within <em>The Pettasquamscutt Chronicle</em> are works of fiction by Andrew Neil. 
+    Each tale draws inspiration from the watershed’s landscape, history, and imagination, 
+    reminding us that the water remembers what we forget.</p>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    // Initialize map
+    const map = L.map('map').setView([41.5134394329345, -71.44777572841639], 13);
+
+    // Satellite basemap
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: '&copy; Esri, Maxar, Earthstar Geographics'
+    }).addTo(map);
+
+    // Story data
+    const story = {
+      coords: [41.5134394329345, -71.44777572841639],
+      title: "What Lurks Beneath",
+      date: "04/10/2024",
+      content: `
+        <p>As the sun cast its first golden rays over the tranquil waters of the Pettasquamscutt Estuary, Evelyn stood at the edge of her dock, her vibrant red kayak gently swaying beside her...</p>
+        <p>The Upper Pond, Evelyn's sanctuary, was a marvel of nature. Carved by ancient glaciers...</p>
+        <p>Clutching her overturned kayak, Evelyn fought to regain her composure as the waters calmed around her...</p>
+      `
+    };
+
+    // Marker popup
+    const popupContent = `
+      <b>${story.title}</b><br>${story.date}<br>
+      <a href="#" id="readMoreLink">Read more</a>
+    `;
+
+    const marker = L.marker(story.coords).addTo(map).bindPopup(popupContent);
+
+    // Handle popup event to open sidebar
+    marker.on("popupopen", () => {
+      const link = document.getElementById("readMoreLink");
+      if (link) {
+        link.onclick = (e) => {
+          e.preventDefault();
+          document.getElementById("sidebarContent").innerHTML =
+            "<h2>" + story.title + "</h2><p><em>" + story.date + "</em></p>" + story.content;
+          document.getElementById("sidebar").classList.add("open");
+          map.closePopup();
+        };
+      }
+    });
+
+    // Close sidebar
+    document.getElementById("closeSidebar").onclick = () => {
+      document.getElementById("sidebar").classList.remove("open");
+    };
+
+    // About button toggle
+    const aboutButton = document.getElementById("aboutButton");
+    const aboutPopup = document.getElementById("aboutPopup");
+
+    aboutButton.onclick = () => {
+      aboutPopup.style.display = (aboutPopup.style.display === "block") ? "none" : "block";
+    };
+
+    // Load watershed boundary
+    fetch("https://services2.arcgis.com/S8zZg9pg23JUEexQ/arcgis/rest/services/HYDRO_Watersheds_HUC12/FeatureServer/6/query?outFields=*&where=OBJECTID=8&f=geojson")
+      .then(response => response.json())
+      .then(data => {
+        L.geoJSON(data, {
+          style: {
+            color: "#00BFFF",
+            weight: 2,
+            fillOpacity: 0.1
+          }
+        }).addTo(map);
+      })
+      .catch(err => console.error("Watershed load error:", err));
+  </script>
+</body>
+</html>
