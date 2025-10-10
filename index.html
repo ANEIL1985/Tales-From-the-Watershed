@@ -27,6 +27,9 @@
     font-size: 1.5rem;
     font-weight: bold;
     z-index: 1000;
+    position: fixed;
+    width: 100%;
+    top: 0;
   }
 
   header span {
@@ -39,9 +42,9 @@
   /* Map container */
   #map {
     width: 100%;
-    height: calc(100% - 80px);
+    height: 100%;
     position: absolute;
-    top: 80px;
+    top: 80px; /* below header */
     left: 0;
   }
 
@@ -49,19 +52,23 @@
   .sidebar {
     position: fixed;
     top: 0;
-    right: -400px;
+    right: -400px; /* start hidden */
     width: 400px;
     height: 100%;
     background: white;
-    box-shadow: -3px 0 10px rgba(0, 0, 0, 0.3);
+    box-shadow: -3px 0 10px rgba(0,0,0,0.3);
     overflow-y: auto;
-    padding: 20px 20px 60px 20px; 
+    padding: 20px 20px 60px 20px;
     transition: right 0.3s ease;
     z-index: 1001;
   }
 
   .sidebar.open {
-    right: 0;
+    right: 0; /* slide in */
+  }
+
+  .sidebar.collapsed {
+    right: -350px; /* small peek */
   }
 
   #closeSidebar {
@@ -70,6 +77,39 @@
     font-size: 24px;
     float: right;
     cursor: pointer;
+  }
+
+  /* Story list in sidebar */
+  #storyList {
+    margin-bottom: 20px;
+  }
+
+  .storyItem {
+    background: #f0f8ff;
+    padding: 10px;
+    margin-bottom: 5px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .storyItem:hover {
+    background: #d0e8ff;
+  }
+
+  .storyItem strong {
+    display: block;
+  }
+
+  .storyItem em {
+    font-size: 0.9rem;
+    color: #555;
+  }
+
+  /* Sidebar content styling */
+  #sidebarContent p {
+    line-height: 1.6;
+    margin-bottom: 1rem;
   }
 
   /* About button */
@@ -85,7 +125,7 @@
     height: 45px;
     font-size: 20px;
     cursor: pointer;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
     z-index: 1100;
   }
 
@@ -98,7 +138,7 @@
     border: 1px solid #ccc;
     padding: 15px;
     width: 280px;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
     display: none;
     z-index: 1100;
   }
@@ -119,17 +159,18 @@
 
   <div id="map"></div>
 
-  <!-- Sidebar for story -->
-  <div id="sidebar" class="sidebar">
+  <!-- Sidebar -->
+  <div id="sidebar" class="sidebar collapsed">
     <button id="closeSidebar">&times;</button>
+    <div id="storyList"></div>
     <div id="sidebarContent"></div>
   </div>
 
-  <!-- About button and popup -->
+  <!-- About button -->
   <button id="aboutButton">i</button>
   <div id="aboutPopup">
     <p><strong>About the Chronicle:</strong><br>
-    All stories within <em>The Pettasquamscutt Chronicle</em> are works of fiction. 
+    All stories within <em>The Pettasquamscutt Chronicle</em> are works of fiction by Andrew Neil. 
     Each tale draws inspiration from the watershed’s landscape, history, and imagination, 
     reminding us that the water remembers what we forget.</p>
   </div>
@@ -146,74 +187,86 @@
       attribution: '&copy; Esri, Maxar, Earthstar Geographics'
     }).addTo(map);
 
-    // Stories array
+    // Story data
     const stories = [
       {
-        coords: [41.5134394329345, -71.44777572841639],
         title: "What Lurks Beneath",
         date: "04/10/2024",
+        coords: [41.5134394329345, -71.44777572841639],
         content: `
-        <p>As the sun cast its first golden rays over the tranquil waters of the Pettasquamscutt Estuary, Evelyn stood at the edge of her dock, her vibrant red kayak gently swaying beside her. For Evelyn, there was no better way to greet her day than with these moments of serene solitude, before the world stirred to life.</p>
-        <p>The Upper Pond, Evelyn's sanctuary, was a marvel of nature. Carved by ancient glaciers, its steep-sided banks plunged to depths of approximately 40 feet, harboring a mysterious anoxic zone devoid of oxygen. Despite being nestled amidst forests, the Pond felt remote, a testament to its pristine beauty that attracted scientists from around the globe.</p>
-        <p>As Evelyn paddled across the glassy surface of the Pond, a gentle mist enveloped her surroundings, adding to the ethereal atmosphere of dawn. Imagining the ancestral journey of river herring beneath her, Evelyn's paddle strokes became a rhythmic cadence in harmony with nature's symphony. Yet, her tranquility was shattered by a foul odor that tainted the crisp morning air, signaling an unsettling change in the waters below.</p>
-        <p>With a growing sense of unease, Evelyn's senses heightened as she drifted towards the center of the Pond, where the water had taken on an unnatural milky hue. Suddenly, ripples disrupted the stillness, followed by a rush of bubbles emerging from the depths, sending a shiver down Evelyn's spine.</p>
-        <p>Heart pounding, Evelyn desperately tried to turn her kayak, but a powerful current surged beneath her, tossing her into the murky depths. Gasping for air, she struggled against the suffocating darkness, her futile cries swallowed by the silent abyss.</p>
-        <p>Meanwhile, in the depths of the anoxic zone, a primordial creature stirred from its slumber, drawn to the surface by ancient instincts. With a thunderous surge, the creature breached the water's surface, casting a shadow of terror over Evelyn. Paralyzed with fear, she watched as the creature vanished as swiftly as it had appeared, leaving only ripples in its wake.</p>
-        <p>Clutching her overturned kayak, Evelyn fought to regain her composure as the waters calmed around her. With each stroke towards home, the memory of her encounter lingered, a haunting reminder of the mysteries lurking beneath the tranquil surface of the Upper Pond.</p>
-
+          <p>As the sun cast its first golden rays over the tranquil waters of the Pettasquamscutt Estuary, Evelyn stood at the edge of her dock...</p>
+          <p>The Upper Pond, Evelyn's sanctuary, was a marvel of nature...</p>
+          <p>Clutching her overturned kayak, Evelyn fought to regain her composure...</p>
         `
       },
       {
-        coords: [41.4964376996236, -71.44382698828555],
         title: "The Howling",
-        date: "10/01/2024",
+        date: "10/10/2024",
+        coords: [41.516, -71.45],
         content: `
-        <p>The car struck the beast with a sickening crunch, sending it sprawling across the road. Sarah slammed on the brakes, skidding to a stop. Her chest heaved as she gripped the steering wheel, eyes locked on the twisted figure in her rearview mirror.</p>
-        <p>It didn’t move.</p>
-        <p>For a moment, she sat frozen. Then, heart pounding, she stepped out of the car, gripping the tire iron she’d grabbed in her rush. The beast lay in the road, its grotesque body crumpled beneath the moonlight. Its eyes, once blazing with fury, now stared lifeless into the void.</p>
-        <p>She approached cautiously, her breath visible in the cold night air. It was massive—larger than any animal she’d ever seen—and its body bore an unnatural composition of scales and matted fur. The claws alone could have gutted her.</p>
-        <p>Raising the tire iron, she brought it down on the beast’s head once, twice, three times, until its skull caved in. She dropped the weapon and staggered back to her car, her body trembling as adrenaline faded. It was over.</p>
-        <p>Or so she thought.</p>
-        <p>The weeks that followed brought relief to the neighborhood. Missing pets ceased, and the eerie howls that had haunted the nights fell silent. Sarah became the reluctant hero of the East side, though few fully believed her account of what she had killed. Most dismissed it as a particularly vicious coyote or rabid dog.</p>
-        <p>By the following spring, life returned to normal. The posters were gone, neighbors walked their pets freely again, and Sarah found herself almost believing it had all been a bad dream.</p>
-        <p>Almost.</p>
-        <p>One crisp autumn night, exactly a year later, Sarah stood on her porch, gazing out at the Narrow River as a gentle breeze rustled the trees. The memories of that night had dulled but never fully faded. She shook her head, forcing a smile as she went back inside.</p>
-        <p>Then she heard it.</p>
-        <p>Low and guttural at first, but unmistakable. A howl.</p>
-        <p>Her stomach dropped as the sound rose, echoing across the river. It wasn’t alone—another howl joined in, then another, weaving into an unearthly chorus that sent a shiver through her soul.</p>
-        <p>Her blood ran cold. She stepped back inside and bolted the door, heart racing as the howls grew louder.</p>
-        <p>In the moonlight, far across the river, she swore she saw them—shapes moving, golden eyes glowing like embers in the night.</p>
-        <p><strong>This time, she knew, it wasn’t over.</strong></p>
+          <p>The car struck the beast with a sickening crunch, sending it sprawling across the road...</p>
+          <p>She approached cautiously, her breath visible in the cold night air...</p>
+          <p>By the following spring, life returned to normal...</p>
+          <p>Then she heard it. Low and guttural at first, but unmistakable. A howl...</p>
+          <p>Her blood ran cold. She stepped back inside and bolted the door...</p>
+          <p>In the moonlight, far across the river, she swore she saw them—shapes moving...</p>
+          <p><strong>This time, she knew, it wasn’t over.</strong></p>
         `
       }
     ];
 
-    // Add all stories to the map
-    stories.forEach((story, index) => {
-      const popupContent = `
-        <b>${story.title}</b><br>${story.date}<br>
-        <a href="#" class="readMoreLink" data-index="${index}">Read more</a>
-      `;
+    // Sort stories by date (oldest first)
+    stories.sort((a,b) => new Date(a.date) - new Date(b.date));
 
+    // Markers array
+    const markers = [];
+
+    // Add markers
+    stories.forEach((story, index) => {
+      const popupContent = `<b>${story.title}</b><br>${story.date}<br><a href="#" class="readMoreLink" data-index="${index}">Read Story</a>`;
       const marker = L.marker(story.coords).addTo(map).bindPopup(popupContent);
+      markers.push(marker);
     });
 
-    // Sidebar functionality
-    document.addEventListener("click", (e) => {
-      if (e.target && e.target.classList.contains("readMoreLink")) {
+    // Sidebar elements
+    const sidebar = document.getElementById('sidebar');
+    const sidebarContent = document.getElementById('sidebarContent');
+    const storyListDiv = document.getElementById('storyList');
+    const closeSidebarBtn = document.getElementById('closeSidebar');
+
+    // Populate story list
+    stories.forEach((story, index) => {
+      const div = document.createElement('div');
+      div.className = 'storyItem';
+      div.innerHTML = `<strong>${story.title}</strong><em>${story.date}</em>`;
+      div.onclick = () => {
+        sidebarContent.innerHTML = `<h2>${story.title}</h2><p><em>${story.date}</em></p>${story.content}`;
+        sidebar.classList.add('open');
+        sidebar.classList.remove('collapsed');
+        map.setView(story.coords, 15);
+        markers[index].openPopup();
+      };
+      storyListDiv.appendChild(div);
+    });
+
+    // Popup "Read Story" links
+    document.addEventListener('click', (e) => {
+      if(e.target && e.target.classList.contains('readMoreLink')){
         e.preventDefault();
-        const index = e.target.getAttribute("data-index");
-        const story = stories[index];
-        document.getElementById("sidebarContent").innerHTML =
-          "<h2>" + story.title + "</h2><p><em>" + story.date + "</em></p>" + story.content;
-        document.getElementById("sidebar").classList.add("open");
-        map.closePopup();
+        const index = e.target.getAttribute('data-index');
+        sidebarContent.innerHTML = `<h2>${stories[index].title}</h2><p><em>${stories[index].date}</em></p>${stories[index].content}`;
+        sidebar.classList.add('open');
+        sidebar.classList.remove('collapsed');
+        map.setView(stories[index].coords, 15);
+        markers[index].openPopup();
       }
     });
 
-    document.getElementById("closeSidebar").onclick = () => {
-      document.getElementById("sidebar").classList.remove("open");
-    };
+    // Close sidebar
+    closeSidebarBtn.onclick = () => {
+      sidebar.classList.remove('open');
+      sidebar.classList.add('collapsed');
+    }
 
     // About button toggle
     const aboutButton = document.getElementById("aboutButton");
@@ -221,7 +274,7 @@
 
     aboutButton.onclick = () => {
       aboutPopup.style.display = (aboutPopup.style.display === "block") ? "none" : "block";
-    };
+    }
 
     // Load watershed boundary
     fetch("https://services2.arcgis.com/S8zZg9pg23JUEexQ/arcgis/rest/services/HYDRO_Watersheds_HUC12/FeatureServer/6/query?outFields=*&where=OBJECTID=8&f=geojson")
@@ -239,3 +292,4 @@
   </script>
 </body>
 </html>
+
