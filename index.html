@@ -234,21 +234,24 @@
     const markers = [];
 
     // Add markers (neon pink circle markers)
-    stories.forEach((story, index) => {
-      const popupContent = `<b>${story.title}</b><br>${story.date}<br><a href="#" class="readMoreLink" data-index="${index}">Read Story</a>`;
-      const marker = L.circleMarker(story.coords, {
-        radius: 10,
-        color: '#FF00FF',
-        fillColor: '#FF69B4',
-        fillOpacity: 0.95,
-        weight: 2
-      }).addTo(map).bindPopup(popupContent);
 
+stories.forEach((story, index) => {
+  const popupContent = `<b>${story.title}</b><br>${story.date}<br><a href="#" class="readMoreLink" data-index="${index}">Read Story</a>`;
+  const markers = L.circleMarker(story.coords, {
+    radius: 10,
+    color: '#FF00FF',
+    fillColor: '#FF69B4',
+    fillOpacity: 0.9,
+    weight: 2
+  }).addTo(map).bindPopup(popupContent);
+
+  markers.push(markers); // <- store the marker for later reference
+});
       // subtle hover enlarge
       marker.on('mouseover', function(){ this.setStyle({ radius: 14 }); });
       marker.on('mouseout', function(){ this.setStyle({ radius: 10 }); });
 
-      markers.push(marker);
+      markers.push(markers);
     });
 
     // Sidebar elements
