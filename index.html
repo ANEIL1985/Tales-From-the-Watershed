@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>The Pettasquamscutt Chronicle</title>
 
 <!-- Leaflet CSS -->
@@ -12,7 +12,8 @@
 />
 
 <style>
-  body {
+  html, body {
+    height: 100%;
     margin: 0;
     font-family: 'Georgia', serif;
   }
@@ -25,6 +26,7 @@
     padding: 1rem 0;
     font-size: 1.5rem;
     font-weight: bold;
+    z-index: 1000;
   }
 
   header span {
@@ -37,7 +39,10 @@
   /* Map container */
   #map {
     width: 100%;
-    height: 100vh;
+    height: calc(100% - 80px); /* Subtract header height */
+    position: absolute;
+    top: 80px;
+    left: 0;
   }
 
   /* Sidebar styling */
@@ -52,7 +57,7 @@
     overflow-y: auto;
     padding: 20px;
     transition: right 0.3s ease;
-    z-index: 1000;
+    z-index: 1001;
   }
 
   .sidebar.open {
@@ -80,8 +85,8 @@
     height: 45px;
     font-size: 20px;
     cursor: pointer;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-    z-index: 1200;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+    z-index: 1100;
   }
 
   /* About popup */
@@ -93,9 +98,9 @@
     border: 1px solid #ccc;
     padding: 15px;
     width: 280px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
     display: none;
-    z-index: 1200;
+    z-index: 1100;
   }
 
   #aboutPopup p {
@@ -105,21 +110,20 @@
   }
 </style>
 </head>
+
 <body>
+  <header>
+    The Pettasquamscutt Chronicle
+    <span>Where the Water Remembers</span>
+  </header>
 
-<header>
-  The Pettasquamscutt Chronicle
-  <span>Where the Water Remembers</span>
-</header>
+  <div id="map"></div>
 
-<div id="map"></div>
+  <!-- Sidebar for story -->
+  <div id="sidebar" class="sidebar">
+    <button id="closeSidebar">&times;</button>
+    <div id="sidebarContent"></div>
+  </div>
 
-<!-- Sidebar for story -->
-<div id="sidebar" class="sidebar">
-  <button id="closeSidebar">&times;</button>
-  <div id="sidebarContent"></div>
-</div>
-
-<!-- About button and popup -->
-<button id="aboutButton">i</button>
-<div id="aboutPopu
+  <!-- About button and popup -->
+  <button id="aboutButton">i</bu
