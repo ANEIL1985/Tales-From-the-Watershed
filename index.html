@@ -39,7 +39,7 @@
   /* Map container */
   #map {
     width: 100%;
-    height: calc(100% - 80px); /* Subtract header height */
+    height: calc(100% - 80px);
     position: absolute;
     top: 80px;
     left: 0;
@@ -139,48 +139,62 @@
 
   <script>
     // Initialize map
-    const map = L.map('map').setView([41.5134394329345, -71.44777572841639], 13);
+    const map = L.map('map').setView([41.5134, -71.4477], 13);
 
     // Satellite basemap
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: '&copy; Esri, Maxar, Earthstar Geographics'
     }).addTo(map);
 
-    // Story data
-    const story = {
-      coords: [41.5134394329345, -71.44777572841639],
-      title: "What Lurks Beneath",
-      date: "04/10/2024",
-      content: `
-        <p>As the sun cast its first golden rays over the tranquil waters of the Pettasquamscutt Estuary, Evelyn stood at the edge of her dock, her vibrant red kayak gently swaying beside her...</p>
-        <p>The Upper Pond, Evelyn's sanctuary, was a marvel of nature. Carved by ancient glaciers...</p>
-        <p>Clutching her overturned kayak, Evelyn fought to regain her composure as the waters calmed around her...</p>
-      `
-    };
+    // Stories array
+    const stories = [
+      {
+        coords: [41.5134394329345, -71.44777572841639],
+        title: "What Lurks Beneath",
+        date: "04/10/2024",
+        content: `
+          <p>As the sun cast its first golden rays over the tranquil waters of the Pettasquamscutt Estuary, Evelyn stood at the edge of her dock, her vibrant red kayak gently swaying beside her...</p>
+          <p>The Upper Pond, Evelyn's sanctuary, was a marvel of nature. Carved by ancient glaciers...</p>
+          <p>Clutching her overturned kayak, Evelyn fought to regain her composure as the waters calmed around her...</p>
+        `
+      },
+      {
+        coords: [41.4964376996236, -71.44382698828555],
+        title: "The Howling",
+        date: "10/01/2024",
+        content: `
+          <p>The car struck the beast with a sickening crunch, sending it sprawling across the road. Sarah slammed on the brakes, skidding to a stop...</p>
+          <p>She approached cautiously, her breath visible in the cold night air. It was massive—larger than any animal she’d ever seen...</p>
+          <p>By the following spring, life returned to normal. The posters were gone, neighbors walked their pets freely again...</p>
+          <p>Then she heard it. Low and guttural at first, but unmistakable. A howl.</p>
+          <p>Her blood ran cold... In the moonlight, far across the river, she swore she saw them—shapes moving, golden eyes glowing like embers in the night.</p>
+        `
+      }
+    ];
 
-    // Marker popup
-    const popupContent = `
-      <b>${story.title}</b><br>${story.date}<br>
-      <a href="#" id="readMoreLink">Read more</a>
-    `;
+    // Add all stories to the map
+    stories.forEach((story, index) => {
+      const popupContent = `
+        <b>${story.title}</b><br>${story.date}<br>
+        <a href="#" class="readMoreLink" data-index="${index}">Read more</a>
+      `;
 
-    const marker = L.marker(story.coords).addTo(map).bindPopup(popupContent);
+      const marker = L.marker(story.coords).addTo(map).bindPopup(popupContent);
+    });
 
-    // Handle popup event to open sidebar
-    marker.on("popupopen", () => {
-      const link = document.getElementById("readMoreLink");
-      if (link) {
-        link.onclick = (e) => {
-          e.preventDefault();
-          document.getElementById("sidebarContent").innerHTML =
-            "<h2>" + story.title + "</h2><p><em>" + story.date + "</em></p>" + story.content;
-          document.getElementById("sidebar").classList.add("open");
-          map.closePopup();
-        };
+    // Sidebar functionality
+    document.addEventListener("click", (e) => {
+      if (e.target && e.target.classList.contains("readMoreLink")) {
+        e.preventDefault();
+        const index = e.target.getAttribute("data-index");
+        const story = stories[index];
+        document.getElementById("sidebarContent").innerHTML =
+          "<h2>" + story.title + "</h2><p><em>" + story.date + "</em></p>" + story.content;
+        document.getElementById("sidebar").classList.add("open");
+        map.closePopup();
       }
     });
 
-    // Close sidebar
     document.getElementById("closeSidebar").onclick = () => {
       document.getElementById("sidebar").classList.remove("open");
     };
