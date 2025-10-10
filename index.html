@@ -1,179 +1,125 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title>The Pettaquamscutt Chronicle: Where the Water Remembers</title>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-    />
-    <style>
-      html, body {
-        height: 100%;
-        margin: 0;
-        font-family: "Georgia", serif;
-        background-color: #f8fafc;
-      }
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Pettasquamscutt Chronicle</title>
 
-      #map {
-        height: 100%;
-        width: 100%;
-      }
+<!-- Leaflet CSS -->
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
 
-      /* Header styling */
-      .header {
-        position: absolute;
-        top: 10px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(255, 255, 255, 0.9);
-        padding: 12px 24px;
-        border-radius: 10px;
-        box-shadow: 0 0 10px rgba(0,0,0,0.15);
-        text-align: center;
-      }
-      .header h1 {
-        margin: 0;
-        font-size: 1.8em;
-        color: #1e3a8a;
-      }
-      .header p {
-        margin: 0;
-        font-style: italic;
-        color: #334155;
-      }
+<style>
+  body {
+    margin: 0;
+    font-family: 'Georgia', serif;
+  }
 
-      /* About button */
-      .about-btn {
-        position: absolute;
-        bottom: 20px;
-        right: 20px;
-        background-color: #1e3a8a;
-        color: white;
-        border: none;
-        border-radius: 50%;
-        width: 48px;
-        height: 48px;
-        font-size: 1.5em;
-        cursor: pointer;
-        box-shadow: 0 0 10px rgba(0,0,0,0.3);
-      }
-      .about-btn:hover {
-        background-color: #3b82f6;
-      }
+  /* Title Banner */
+  header {
+    background: #003366;
+    color: white;
+    text-align: center;
+    padding: 1rem 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
 
-      /* About popup modal */
-      .modal {
-        display: none;
-        position: fixed;
-        z-index: 1000;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0,0,0,0.6);
-      }
-      .modal-content {
-        background-color: white;
-        margin: 10% auto;
-        padding: 20px;
-        border-radius: 10px;
-        width: 80%;
-        max-width: 600px;
-        box-shadow: 0 0 20px rgba(0,0,0,0.3);
-      }
-      .close {
-        color: #aaa;
-        float: right;
-        font-size: 24px;
-        cursor: pointer;
-      }
-      .close:hover {
-        color: black;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="header">
-      <h1>The Pettaquamscutt Chronicle</h1>
-      <p>Where the Water Remembers</p>
-    </div>
+  header span {
+    display: block;
+    font-size: 1rem;
+    font-style: italic;
+    margin-top: 0.3rem;
+  }
 
-    <div id="map"></div>
+  /* Map container */
+  #map {
+    width: 100%;
+    height: 100vh;
+  }
 
-    <!-- About button -->
-    <button class="about-btn" id="aboutBtn">i</button>
+  /* Sidebar styling */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    right: -400px;
+    width: 400px;
+    height: 100%;
+    background: white;
+    box-shadow: -3px 0 10px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
+    padding: 20px;
+    transition: right 0.3s ease;
+    z-index: 1000;
+  }
 
-    <!-- About modal -->
-    <div id="aboutModal" class="modal">
-      <div class="modal-content">
-        <span class="close" id="closeModal">&times;</span>
-        <h2>About This Project</h2>
-        <p>
-          <em>The Pettaquamscutt Chronicle</em> is a fictional news site for fantastical stories
-          drawn from the watershed. All stories are imagined and written by Andrew Neil, 
-          with assistance from ChatGPT in the editing process. The concepts, characters, 
-          and words are original works by the author.
-        </p>
-      </div>
-    </div>
+  .sidebar.open {
+    right: 0;
+  }
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script>
-      // Initialize map
-      const map = L.map("map").setView([41.5134394329345, -71.44777572841639], 13);
+  #closeSidebar {
+    background: none;
+    border: none;
+    font-size: 24px;
+    float: right;
+    cursor: pointer;
+  }
 
-      // Add satellite basemap
-      L.tileLayer("https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", {
-        maxZoom: 20,
-        subdomains: ['mt0','mt1','mt2','mt3'],
-        attribution: '&copy; <a href="https://www.google.com/maps">Google Maps</a>'
-      }).addTo(map);
+  /* About button */
+  #aboutButton {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #003366;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    font-size: 20px;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+    z-index: 1200;
+  }
 
-      // Fetch and display watershed boundary (ObjectID = 8)
-      fetch("https://services2.arcgis.com/S8zZg9pg23JUEexQ/arcgis/rest/services/HYDRO_Watersheds_HUC12/FeatureServer/6/query?where=OBJECTID=8&outFields=*&f=geojson")
-        .then(response => response.json())
-        .then(data => {
-          L.geoJSON(data, {
-            style: {
-              color: "#1e40af",
-              weight: 2,
-              fillColor: "#60a5fa",
-              fillOpacity: 0.25
-            }
-          }).addTo(map);
-        })
-        .catch(error => console.error("Error loading watershed:", error));
+  /* About popup */
+  #aboutPopup {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    background: white;
+    border: 1px solid #ccc;
+    padding: 15px;
+    width: 280px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    display: none;
+    z-index: 1200;
+  }
 
-      // Add story marker
-      const marker = L.marker([41.5134394329345, -71.44777572841639]).addTo(map);
-      marker.bindPopup(`
-        <h3>What Lurks Beneath</h3>
-        <p><strong>04/10/2024</strong></p>
-        <p>
-        As the sun cast its first golden rays over the tranquil waters of the Pettasquamscutt Estuary, Evelyn stood at the edge of her dock, her vibrant red kayak gently swaying beside her...
-        </p>
-        <a href="#" onclick="alert('Full story coming soon!')">Read more</a>
-      `);
+  #aboutPopup p {
+    margin: 0;
+    font-size: 0.9rem;
+    line-height: 1.3rem;
+  }
+</style>
+</head>
+<body>
 
-      // About modal functionality
-      const aboutBtn = document.getElementById("aboutBtn");
-      const aboutModal = document.getElementById("aboutModal");
-      const closeModal = document.getElementById("closeModal");
+<header>
+  The Pettasquamscutt Chronicle
+  <span>Where the Water Remembers</span>
+</header>
 
-      aboutBtn.onclick = function() {
-        aboutModal.style.display = "block";
-      }
-      closeModal.onclick = function() {
-        aboutModal.style.display = "none";
-      }
-      window.onclick = function(event) {
-        if (event.target === aboutModal) {
-          aboutModal.style.display = "none";
-        }
-      }
-    </script>
-  </body>
-</html>
+<div id="map"></div>
 
+<!-- Sidebar for story -->
+<div id="sidebar" class="sidebar">
+  <button id="closeSidebar">&times;</button>
+  <div id="sidebarContent"></div>
+</div>
+
+<!-- About button and popup -->
+<button id="aboutButton">i</button>
+<div id="aboutPopu
