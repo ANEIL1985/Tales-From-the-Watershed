@@ -203,4 +203,94 @@
         <p>The weeks that followed brought relief to the neighborhood. Missing pets ceased, and the eerie howls that had haunted the nights fell silent. Sarah became the reluctant hero of the East side, though few fully believed her account of what she had killed. Most dismissed it as a particularly vicious coyote or rabid dog.</p>
         <p>By the following spring, life returned to normal. The posters were gone, neighbors walked their pets freely again, and Sarah found herself almost believing it had all been a bad dream.</p>
         <p>Almost.</p>
-        <p>One crisp autumn night, exactly a year later, Sarah stood on her porch, gazing out at the Narrow River as a gentle breeze rustled the trees. The memories of
+        <p>One crisp autumn night, exactly a year later, Sarah stood on her porch, gazing out at the Narrow River as a gentle breeze rustled the trees. The memories of that night had dulled but never fully faded. She shook her head, forcing a smile as she went back inside.</p>
+        <p>Then she heard it.</p>
+        <p>Low and guttural at first, but unmistakable. A howl.</p>
+        <p>Her stomach dropped as the sound rose, echoing across the river. It wasn’t alone—another howl joined in, then another, weaving into an unearthly chorus that sent a shiver through her soul.</p>
+        <p>Her blood ran cold. She stepped back inside and bolted the door, heart racing as the howls grew louder.</p>
+        <p>In the moonlight, far across the river, she swore she saw them—shapes moving, golden eyes glowing like embers in the night.</p>
+        <p><strong>This time, she knew, it wasn’t over.</strong></p>`
+      }
+    ];
+
+    // Sort
+    stories.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+    // Markers array (fixed typo)
+    const markers = [];
+
+    // Add markers (neon pink circle markers)
+    stories.forEach((story, index) => {
+      const popupContent = `<b>${story.title}</b><br>${story.date}<br><a href="#" class="readMoreLink" data-index="${index}">Read Story</a>`;
+      const marker = L.circleMarker(story.coords, {
+        radius: 10,
+        color: '#FF00FF',
+        fillColor: '#FF69B4',
+        fillOpacity: 0.95,
+        weight: 2
+      }).addTo(map).bindPopup(popupContent);
+
+      // subtle hover enlarge
+      marker.on('mouseover', function(){ this.setStyle({ radius: 14 }); });
+      marker.on('mouseout', function(){ this.setStyle({ radius: 10 }); });
+
+      markers.push(marker);
+    });
+
+    // Sidebar elements
+    const sidebar = document.getElementById('sidebar');
+    const sidebarContent = document.getElementById('sidebarContent');
+    const storyListDiv = document.getElementById('storyList');
+    const toggleBtn = document.getElementById('toggleSidebar');
+
+    // Populate story list
+    stories.forEach((story, index) => {
+      const div = document.createElement('div');
+      div.className = 'storyItem';
+      div.innerHTML = `<strong>${story.title}</strong><em>${story.date}</em>`;
+      div.onclick = () => {
+        sidebarContent.innerHTML = `<h2>${story.title}</h2><p><em>${story.date}</em></p>${story.content}`;
+        sidebar.classList.remove('collapsed');
+        map.setView(story.coords, 15);
+        markers[index].openPopup();
+      };
+      storyListDiv.appendChild(div);
+    });
+
+    // Popup "Read Story" links
+    document.addEventListener('click', (e) => {
+      if(e.target && e.target.classList.contains('readMoreLink')){
+        e.preventDefault();
+        const index = parseInt(e.target.getAttribute('data-index'), 10);
+        sidebarContent.innerHTML = `<h2>${stories[index].title}</h2><p><em>${stories[index].date}</em></p>${stories[index].content}`;
+        sidebar.classList.remove('collapsed');
+        map.setView(stories[index].coords, 15);
+        markers[index].openPopup();
+      }
+    });
+
+    // Toggle sidebar (arrow changes)
+    toggleBtn.onclick = () => {
+      sidebar.classList.toggle('collapsed');
+      toggleBtn.innerHTML = sidebar.classList.contains('collapsed') ? '&#9654;' : '&#9664;';
+    };
+
+    // About button toggle
+    const aboutButton = document.getElementById("aboutButton");
+    const aboutPopup = document.getElementById("aboutPopup");
+    aboutButton.onclick = () => {
+      aboutPopup.style.display = (aboutPopup.style.display === "block") ? "none" : "block";
+    };
+
+    // Load watershed boundary
+    fetch("https://services2.arcgis.com/S8zZg9pg23JUEexQ/arcgis/rest/services/HYDRO_Watersheds_HUC12/FeatureServer/6/query?outFields=*&where=OBJECTID=8&f=geojson")
+      .then(response => response.json())
+      .then(data => {
+        L.geoJSON(data, {
+          style: { color: "#00BFFF", weight: 2, fillOpacity: 0.1 }
+        }).addTo(map);
+      })
+      .catch(err => console.error("Watershed load error:", err));
+  </script>
+</body>
+</html>
