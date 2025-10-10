@@ -1,325 +1,354 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>The Pettasquamscutt Chronicle</title>
 
-<!-- Leaflet CSS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
 <style>
-  html, body {
-    height: 100%;
-    margin: 0;
-    font-family: 'Georgia', serif;
-  }
+  html, body { height: 100%; margin: 0; font-family: Georgia, serif; }
 
-  /* Title Banner */
+  /* Header */
   header {
-    background: #003366;
-    color: white;
-    text-align: center;
-    padding: 1rem 0;
-    font-size: 1.5rem;
-    font-weight: bold;
-    z-index: 1000;
     position: fixed;
-    width: 100%;
     top: 0;
-  }
-
-  header span {
-    display: block;
-    font-size: 1rem;
-    font-style: italic;
-    margin-top: 0.3rem;
-  }
-
-  /* Map container: leave room for header */
-  #map {
-    width: 100%;
-    height: calc(100% - 80px);
-    position: absolute;
-    top: 80px; /* below header */
     left: 0;
+    right: 0;
+    height: 80px;
+    background: #003366;
+    color: #fff;
+    z-index: 1200;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 12px;
+    box-sizing: border-box;
+  }
+  header h1 { margin: 0; font-size: 1.25rem; }
+  header p { margin: 2px 0 0 0; font-size: 0.95rem; font-style: italic; color: #dbeafe; }
+
+  /* Map */
+  #map {
+    position: absolute;
+    top: 80px;            /* leave room for header */
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
   }
 
-  /* Sidebar styling */
+  /* Sidebar (right) */
   .sidebar {
     position: fixed;
     top: 0;
     right: 0;
-    width: 400px;
     height: 100%;
-    background: white;
-    box-shadow: -3px 0 10px rgba(0,0,0,0.3);
+    width: 420px;
+    background: #fff;
+    z-index: 1400;
+    box-shadow: -4px 0 12px rgba(0,0,0,0.15);
+    padding: 18px;
+    box-sizing: border-box;
+    transition: transform 0.28s ease;
     overflow-y: auto;
-    padding: 20px 20px 300px 20px; /* extra bottom padding so content scrolls past the end */
-    transition: right 0.3s ease;
-    z-index: 1001;
+    padding-bottom: 140px; /* generous bottom padding for long stories */
   }
-
   .sidebar.collapsed {
-    right: -350px;
+    transform: translateX(100%); /* hide offscreen */
   }
 
-  /* Toggle button */
+  /* Toggle button on left edge of sidebar */
   #toggleSidebar {
-    position: absolute;
-    top: 20px;
-    left: -25px; /* outside sidebar */
-    width: 25px;
-    height: 50px;
+    position: fixed;
+    top: 24px;
+    right: 420px; /* sits just outside the sidebar */
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
     background: #003366;
     color: white;
     border: none;
-    border-radius: 0 5px 5px 0;
+    z-index: 1500;
     cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
     font-size: 18px;
-    z-index: 1002;
   }
 
-  /* Story list in sidebar */
-  #storyList { margin-bottom: 20px; }
-
+  /* Story list */
+  #storyList { margin-bottom: 16px; }
   .storyItem {
-    background: #f0f8ff;
+    background: #f8fbff;
     padding: 10px;
-    margin-bottom: 5px;
-    border-radius: 4px;
+    margin-bottom: 8px;
+    border-radius: 6px;
     cursor: pointer;
-    transition: background 0.2s;
+    border: 1px solid rgba(30,64,175,0.06);
   }
-  .storyItem:hover { background: #d0e8ff; }
-  .storyItem strong { display: block; }
-  .storyItem em { font-size: 0.9rem; color: #555; }
+  .storyItem:hover { background: #e7f2ff; }
 
-  /* Sidebar content styling */
-  #sidebarContent p { line-height: 1.6; margin-bottom: 1rem; }
+  /* Story content */
+  #storyContent h2 { margin-top: 4px; margin-bottom: 6px; }
+  #storyContent p { line-height: 1.6; margin-bottom: 0.9rem; }
 
-  /* About button - bottom-left */
+  /* About button (bottom-left) */
   #aboutButton {
     position: fixed;
-    bottom: 20px;
-    left: 20px;
+    left: 16px;
+    bottom: 16px;
+    z-index: 1500;
     background: #003366;
-    color: white;
+    color: #fff;
     border: none;
-    border-radius: 50%;
-    width: 45px;
-    height: 45px;
-    font-size: 20px;
+    border-radius: 8px;
+    padding: 8px 12px;
     cursor: pointer;
-    box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-    z-index: 1100;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
   }
 
-  /* About popup - near bottom-left button */
+  /* About popup */
   #aboutPopup {
     position: fixed;
-    bottom: 80px;
-    left: 20px;
+    left: 16px;
+    bottom: 64px;
+    width: 300px;
     background: white;
-    border: 1px solid #ccc;
-    padding: 15px;
-    width: 280px;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+    padding: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
+    z-index: 1500;
     display: none;
-    z-index: 1100;
+    border-radius: 6px;
   }
 
-  #aboutPopup p {
-    margin: 0;
-    font-size: 0.9rem;
-    line-height: 1.3rem;
+  /* Small responsive tweak */
+  @media (max-width: 900px) {
+    .sidebar { width: 320px; }
+    #toggleSidebar { right: 320px; }
   }
 </style>
 </head>
-
 <body>
-  <header>
-    The Pettasquamscutt Chronicle
-    <span>Where the Water Remembers</span>
-  </header>
 
-  <div id="map"></div>
+<header>
+  <h1>The Pettasquamscutt Chronicle</h1>
+  <p>Where the Water Remembers</p>
+</header>
 
-  <!-- Sidebar -->
-  <div id="sidebar" class="sidebar open">
-    <button id="toggleSidebar">&#9664;</button>
+<div id="map"></div>
+
+<!-- Sidebar -->
+<aside id="sidebar" class="sidebar">
+  <div id="sidebarInner">
+    <h3 style="margin-top:56px;">Stories</h3>
     <div id="storyList"></div>
-    <div id="sidebarContent">
-      <h2>The News That Matters Most</h2>
-      <p>Come back soon.  The news never stops.</p>
+    <hr />
+    <div id="storyContent">
+      <h2>The Stories That Matter The Most</h2>
+      <p>Click a story in the list or click a marker on the map and choose "Read Story" to view the full tale.</p>
     </div>
   </div>
+</aside>
 
-  <!-- About button -->
-  <button id="aboutButton">i</button>
-  <div id="aboutPopup">
-    <p><strong>About the Chronicle:</strong><br>
-    All stories within <em>The Pettasquamscutt Chronicle</em> are works of fiction. 
-    Each tale draws inspiration from the watershed’s landscape, history, people, imagination, and memory.
-    <br><br>Contact: <a href="mailto:neilion22@gmail.com">neilion22@gmail.com</a></p>
-  </div>
+<button id="toggleSidebar" title="Collapse/Expand sidebar">&#9664;</button>
 
-  <!-- Leaflet JS -->
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<!-- About -->
+<button id="aboutButton">About</button>
+<div id="aboutPopup">
+  <strong>The Pettasquamscutt Chronicle</strong>
+  <p style="margin-top:6px;">
+    Fictional dispatches inspired by the watershed. From the mind of neilion22@gmail.com.<br>
+    Contact: <a href="mailto:neilion22@gmail.com">neilion22@gmail.com</a>
+  </p>
+</div>
 
-  <script>
-    // Initialize map
-    const map = L.map('map').setView([41.5134, -71.4477], 13);
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ---------------------------
+   Map + UI initialization
+   --------------------------- */
+const map = L.map('map', { preferCanvas: true }).setView([41.5134, -71.4477], 13);
 
-    // Satellite basemap
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution: '&copy; Esri, Maxar, Earthstar Geographics'
-    }).addTo(map);
+L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+  attribution: '&copy; Esri, Maxar, Earthstar Geographics',
+  maxZoom: 19
+}).addTo(map);
 
-    // Story data
-    const stories = [
-      {
-        title: "What Lurks Beneath",
-        date: "04/10/2024",
-        coords: [41.5134394329345, -71.44777572841639],
-        content: `<p>As the sun cast its first golden rays over the tranquil waters of the Pettasquamscutt Estuary, Evelyn stood at the edge of her dock, her vibrant red kayak gently swaying beside her. For Evelyn, there was no better way to greet her day than with these moments of serene solitude, before the world stirred to life.</p>
-        <p>The Upper Pond, Evelyn's sanctuary, was a marvel of nature. Carved by ancient glaciers, its steep-sided banks plunged to depths of approximately 40 feet, harboring a mysterious anoxic zone devoid of oxygen. Despite being nestled amidst forests, the Pond felt remote, a testament to its pristine beauty that attracted scientists from around the globe.</p>
-        <p>As Evelyn paddled across the glassy surface of the Pond, a gentle mist enveloped her surroundings, adding to the ethereal atmosphere of dawn. Imagining the ancestral journey of river herring beneath her, Evelyn's paddle strokes became a rhythmic cadence in harmony with nature's symphony. Yet, her tranquility was shattered by a foul odor that tainted the crisp morning air, signaling an unsettling change in the waters below.</p>
-        <p>With a growing sense of unease, Evelyn's senses heightened as she drifted towards the center of the Pond, where the water had taken on an unnatural milky hue. Suddenly, ripples disrupted the stillness, followed by a rush of bubbles emerging from the depths, sending a shiver down Evelyn's spine.</p>
-        <p>Heart pounding, Evelyn desperately tried to turn her kayak, but a powerful current surged beneath her, tossing her into the murky depths. Gasping for air, she struggled against the suffocating darkness, her futile cries swallowed by the silent abyss.</p>
-        <p>Meanwhile, in the depths of the anoxic zone, a primordial creature stirred from its slumber, drawn to the surface by ancient instincts. With a thunderous surge, the creature breached the water's surface, casting a shadow of terror over Evelyn. Paralyzed with fear, she watched as the creature vanished as swiftly as it had appeared, leaving only ripples in its wake.</p>
-        <p>Clutching her overturned kayak, Evelyn fought to regain her composure as the waters calmed around her. With each stroke towards home, the memory of her encounter lingered, a haunting reminder of the mysteries lurking beneath the tranquil surface of the Upper Pond.</p>`
-      },
-      {
-        title: "The Howling",
-        date: "10/10/2024",
-        coords: [41.49640555750355, -71.44391281656371],
-        content: `<p>The full moon cast its silver light over the East side of the Narrow River, bathing the sleepy neighborhood in an eerie glow. Mr. Thompson, the last holdout of the old guard, leaned against his porch railing, his eyes tracing constellations in the clear night sky. Fluffy, his pint-sized Yorkshire terrier, sniffed around the dew-soaked grass.</p>
+/* ---------------------------
+   Stories (your full texts)
+   --------------------------- */
+const stories = [
+  {
+    title: "What Lurks Beneath",
+    date: "04/10/2024",
+    coords: [41.5134394329345, -71.44777572841639],
+    content: `
+      <p>As the sun cast its first golden rays over the tranquil waters of the Pettasquamscutt Estuary, Evelyn stood at the edge of her dock, her vibrant red kayak gently swaying beside her. For Evelyn, there was no better way to greet her day than with these moments of serene solitude, before the world stirred to life.</p>
+
+      <p>The Upper Pond, Evelyn's sanctuary, was a marvel of nature. Carved by ancient glaciers, its steep-sided banks plunged to depths of approximately 40 feet, harboring a mysterious anoxic zone devoid of oxygen. Despite being nestled amidst forests, the Pond felt remote, a testament to its pristine beauty that attracted scientists from around the globe.</p>
+
+      <p>As Evelyn paddled across the glassy surface of the Pond, a gentle mist enveloped her surroundings, adding to the ethereal atmosphere of dawn. Imagining the ancestral journey of river herring beneath her, Evelyn's paddle strokes became a rhythmic cadence in harmony with nature's symphony. Yet, her tranquility was shattered by a foul odor that tainted the crisp morning air, signaling an unsettling change in the waters below.</p>
+
+      <p>With a growing sense of unease, Evelyn's senses heightened as she drifted towards the center of the Pond, where the water had taken on an unnatural milky hue. Suddenly, ripples disrupted the stillness, followed by a rush of bubbles emerging from the depths, sending a shiver down Evelyn's spine.</p>
+
+      <p>Heart pounding, Evelyn desperately tried to turn her kayak, but a powerful current surged beneath her, tossing her into the murky depths. Gasping for air, she struggled against the suffocating darkness, her futile cries swallowed by the silent abyss.</p>
+
+      <p>Meanwhile, in the depths of the anoxic zone, a primordial creature stirred from its slumber, drawn to the surface by ancient instincts. With a thunderous surge, the creature breached the water's surface, casting a shadow of terror over Evelyn. Paralyzed with fear, she watched as the creature vanished as swiftly as it had appeared, leaving only ripples in its wake.</p>
+
+      <p>Clutching her overturned kayak, Evelyn fought to regain her composure as the waters calmed around her. With each stroke towards home, the memory of her encounter lingered, a haunting reminder of the mysteries lurking beneath the tranquil surface of the Upper Pond.</p>
+    `
+  },
+  {
+    title: "The Howling",
+    date: "10/10/2024",
+    coords: [41.49640555750355, -71.44391281656371],
+    content: `
+     <p>The full moon cast its silver light over the East side of the Narrow River, bathing the sleepy neighborhood in an eerie glow. Mr. Thompson, the last holdout of the old guard, leaned against his porch railing, his eyes tracing constellations in the clear night sky. Fluffy, his pint-sized Yorkshire terrier, sniffed around the dew-soaked grass.</p>
+
     <p>The old man barely noticed the rustle in the bushes at the edge of his yard. But when Fluffy yelped—a sound of pure terror that sent shivers up his spine—he turned too late. The darkness swallowed the dog whole, leaving behind only silence.</p>
+
     <p>The next morning, neighbors offered condolences, nodding knowingly. “Coyotes,” one said, shaking his head. “Been getting bolder.”</p>
+
     <p>But when the Jenkins' tabby vanished the following night, the story spread. The howls began then—inhuman screeches echoing across the river, growing louder each night. By the end of the week, the streets were lined with "Missing Pet" posters. The neighborhood felt hunted.</p>
+
     <p>“Something’s out there,” whispered Diane from three doors down, clutching her flashlight during an emergency meeting. “It’s not just coyotes.”</p>
+
     <p>Theories multiplied: feral dogs, escaped zoo animals, even aliens. But no one dared wander alone after dark.</p>
+
     <p>One foggy evening, Sarah Miller sprinted toward her car, clutching her groceries. She fumbled with her keys when she felt it—an oppressive presence watching her. Turning slowly, her breath caught. Glowing yellow eyes stared back from the shadows. Then it lunged.</p>
+
     <p>Sarah screamed, barely diving into her car before the beast struck. The impact rocked the vehicle as razor-sharp claws raked against the door, its growls guttural and unnatural. Blood trickled down Sarah’s arm, where teeth had grazed her as she fought to escape.</p>
+
     <p>She slammed the door, locking it just as the creature’s face—half-wolf, half-nightmare—pressed against the window. Snarling, it gnawed at the glass before bolting into the trees with a speed that defied logic.</p>
+
     <p>Shaking, Sarah started the car and sped off. She had to get away—away from the house, away from the river. The road curved ahead, leading to the hill out of the neighborhood.</p>
+
     <p>Then she saw it.</p>
+
     <p>Under the moonlight, the creature stood in the middle of the road, its form monstrous and alien. Its elongated limbs ended in claws that dripped with blood, its eyes gleaming like molten gold. It roared—a sound that reverberated through Sarah’s chest like a death knell.</p>
+
     <p>“No,” she whispered, flooring the gas.</p>
+
     <p>The car struck the beast with a sickening crunch, sending it sprawling across the road. Sarah slammed on the brakes, skidding to a stop. Her chest heaved as she gripped the steering wheel, eyes locked on the twisted figure in her rearview mirror.</p>
+
     <p>It didn’t move.</p>
+
     <p>For a moment, she sat frozen. Then, heart pounding, she stepped out of the car, gripping the tire iron she’d grabbed in her rush. The beast lay in the road, its grotesque body crumpled beneath the moonlight. Its eyes, once blazing with fury, now stared lifeless into the void.</p>
+
     <p>She approached cautiously, her breath visible in the cold night air. It was massive—larger than any animal she’d ever seen—and its body bore an unnatural composition of scales and matted fur. The claws alone could have gutted her.</p>
+
     <p>Raising the tire iron, she brought it down on the beast’s head once, twice, three times, until its skull caved in. She dropped the weapon and staggered back to her car, her body trembling as adrenaline faded. It was over.</p>
+
     <p><em>Or so she thought.</em></p>
+
     <hr>
+
     <p>The weeks that followed brought relief to the neighborhood. Missing pets ceased, and the eerie howls that had haunted the nights fell silent. Sarah became the reluctant hero of the East side, though few fully believed her account of what she had killed. Most dismissed it as a particularly vicious coyote or rabid dog.</p>
+
     <p>By the following spring, life returned to normal. The posters were gone, neighbors walked their pets freely again, and Sarah found herself almost believing it had all been a bad dream.</p>
+
     <p><em>Almost.</em></p>
+
     <p>One crisp autumn night, exactly a year later, Sarah stood on her porch, gazing out at the Narrow River as a gentle breeze rustled the trees. The memories of that night had dulled but never fully faded. She shook her head, forcing a smile as she went back inside.</p>
+
     <p>Then she heard it.</p>
+
     <p>Low and guttural at first, but unmistakable. A howl.</p>
+
     <p>Her stomach dropped as the sound rose, echoing across the river. It wasn’t alone—another howl joined in, then another, weaving into an unearthly chorus that sent a shiver through her soul.</p>
+
     <p>Her blood ran cold. She stepped back inside and bolted the door, heart racing as the howls grew louder.</p>
+
     <p>In the moonlight, far across the river, she swore she saw them—shapes moving, golden eyes glowing like embers in the night.</p>
+
     <p><strong>This time, she knew, it wasn’t over.</strong></p>`
-      }
-    ];
+}
+];
 
-    // Sort
-    stories.sort((a,b) => new Date(a.date) - new Date(b.date));
+/* sort oldest -> newest by date */
+stories.sort((a,b) => new Date(a.date) - new Date(b.date));
 
-    // Markers array (fixed typo)
-    const markers = [];
+/* markers array so we can reference markers by index later */
+const markers = [];
 
-    // Add markers (neon pink circle markers)
-
-/ Add markers to the map
-stories.forEach((story, index) => {
-  // Create popup content
-  const popupContent = `
-    <b>${story.title}</b><br>
-    ${story.date}<br>
-    <a href="#" class="readMoreLink" data-index="${index}">Read Story</a>
-  `;
-
-  // Create the marker
-  const marker = L.circleMarker(story.coords, {
-    radius: 10,             // marker size
-    color: '#FF00FF',       // neon pink border
-    fillColor: '#FF69B4',   // neon pink fill
-    fillOpacity: 0.9,
+/* add neon-pink circle markers with popups */
+stories.forEach((story, i) => {
+  const popup = `<b>${story.title}</b><br><small>${story.date}</small><br><a href="#" class="readMoreLink" data-index="${i}">Read Story</a>`;
+  const m = L.circleMarker(story.coords, {
+    radius: 9,
+    color: '#FF00FF',
+    fillColor: '#FF69B4',
+    fillOpacity: 0.95,
     weight: 2
-  }).addTo(map);
+  }).addTo(map).bindPopup(popup);
 
-  // Bind popup to marker
-  marker.bindPopup(popupContent);
+  // hover effect
+  m.on('mouseover', () => m.setStyle({ radius: 13 }));
+  m.on('mouseout', () => m.setStyle({ radius: 9 }));
 
-  // Event listener: handle “Read Story” click
-  marker.on('popupopen', () => {
-    const link = document.querySelector('.readMoreLink[data-index="' + index + '"]');
-    if (link) {
-      link.addEventListener('click', (e) => {
-        e.preventDefault();
-        openStory(index); // your existing function to open the sidebar and show the story
-        map.setView(story.coords, 15);
-      });
+  markers.push(m);
+});
 
-    // Sidebar elements
-    const sidebar = document.getElementById('sidebar');
-    const sidebarContent = document.getElementById('sidebarContent');
-    const storyListDiv = document.getElementById('storyList');
-    const toggleBtn = document.getElementById('toggleSidebar');
+/* populate sidebar story list */
+const storyList = document.getElementById('storyList');
+stories.forEach((story, i) => {
+  const item = document.createElement('div');
+  item.className = 'storyItem';
+  item.innerHTML = `<strong>${story.title}</strong><div style="font-size:0.9rem;color:#555;margin-top:4px">${story.date}</div>`;
+  item.addEventListener('click', () => {
+    // show story in sidebar, center map and open popup
+    document.getElementById('storyContent').innerHTML = `<h2>${story.title}</h2><p><em>${story.date}</em></p>${story.content}`;
+    // ensure sidebar visible
+    document.getElementById('sidebar').classList.remove('collapsed');
+    map.setView(story.coords, 15);
+    markers[i].openPopup();
+  });
+  storyList.appendChild(item);
+});
 
-    // Populate story list
-    stories.forEach((story, index) => {
-      const div = document.createElement('div');
-      div.className = 'storyItem';
-      div.innerHTML = `<strong>${story.title}</strong><em>${story.date}</em>`;
-      div.onclick = () => {
-        sidebarContent.innerHTML = `<h2>${story.title}</h2><p><em>${story.date}</em></p>${story.content}`;
-        sidebar.classList.remove('collapsed');
-        map.setView(story.coords, 15);
-        markers[index].openPopup();
-      };
-      storyListDiv.appendChild(div);
-    });
+/* Event delegation for Read Story links inside popups */
+document.addEventListener('click', (evt) => {
+  const target = evt.target;
+  if (target && target.classList && target.classList.contains('readMoreLink')) {
+    evt.preventDefault();
+    const idx = parseInt(target.getAttribute('data-index'), 10);
+    if (!Number.isNaN(idx) && stories[idx]) {
+      document.getElementById('storyContent').innerHTML = `<h2>${stories[idx].title}</h2><p><em>${stories[idx].date}</em></p>${stories[idx].content}`;
+      document.getElementById('sidebar').classList.remove('collapsed');
+      map.setView(stories[idx].coords, 15);
+      // close any open popup (so story is readable) — optional:
+      map.closePopup();
+      // open marker popup after a slight delay so user sees marker too
+      setTimeout(() => markers[idx].openPopup(), 300);
+    }
+  }
+});
 
-    // Popup "Read Story" links
-    document.addEventListener('click', (e) => {
-      if(e.target && e.target.classList.contains('readMoreLink')){
-        e.preventDefault();
-        const index = parseInt(e.target.getAttribute('data-index'), 10);
-        sidebarContent.innerHTML = `<h2>${stories[index].title}</h2><p><em>${stories[index].date}</em></p>${stories[index].content}`;
-        sidebar.classList.remove('collapsed');
-        map.setView(stories[index].coords, 15);
-        markers[index].openPopup();
-      }
-    });
+/* Sidebar toggle button */
+const toggleBtn = document.getElementById('toggleSidebar');
+const sidebarEl = document.getElementById('sidebar');
+toggleBtn.addEventListener('click', () => {
+  const collapsed = sidebarEl.classList.toggle('collapsed');
+  toggleBtn.innerHTML = collapsed ? '&#9654;' /* right arrow */ : '&#9664;' /* left arrow */;
+});
 
-    // Toggle sidebar (arrow changes)
-    toggleBtn.onclick = () => {
-      sidebar.classList.toggle('collapsed');
-      toggleBtn.innerHTML = sidebar.classList.contains('collapsed') ? '&#9654;' : '&#9664;';
-    };
+/* About button & popup */
+const aboutBtn = document.getElementById('aboutButton');
+const aboutPopup = document.getElementById('aboutPopup');
+aboutBtn.addEventListener('click', () => {
+  aboutPopup.style.display = (aboutPopup.style.display === 'block') ? 'none' : 'block';
+});
 
-    // About button toggle
-    const aboutButton = document.getElementById("aboutButton");
-    const aboutPopup = document.getElementById("aboutPopup");
-    aboutButton.onclick = () => {
-      aboutPopup.style.display = (aboutPopup.style.display === "block") ? "none" : "block";
-    };
-
-    // Load watershed boundary
-    fetch("https://services2.arcgis.com/S8zZg9pg23JUEexQ/arcgis/rest/services/HYDRO_Watersheds_HUC12/FeatureServer/6/query?outFields=*&where=OBJECTID=8&f=geojson")
-      .then(response => response.json())
-      .then(data => {
-        L.geoJSON(data, {
-          style: { color: "#00BFFF", weight: 2, fillOpacity: 0.1 }
-        }).addTo(map);
-      })
-      .catch(err => console.error("Watershed load error:", err));
-  </script>
+/* Watershed boundary (ObjectID 8) */
+fetch("https://services2.arcgis.com/S8zZg9pg23JUEexQ/arcgis/rest/services/HYDRO_Watersheds_HUC12/FeatureServer/6/query?where=OBJECTID=8&outFields=*&f=geojson")
+  .then(r => r.json())
+  .then(geojson => {
+    L.geoJSON(geojson, {
+      style: { color: '#00BFFF', weight: 2, fillOpacity: 0.12 }
+    }).addTo(map);
+  })
+  .catch(err => console.error('Watershed load error:', err));
+</script>
 </body>
 </html>
