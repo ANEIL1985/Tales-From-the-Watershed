@@ -200,18 +200,18 @@ function addPost(post, index) {
 
   posts.push({
   title: "Strange Odor Reported Near the River",
-  date: "March 2, 2026",
+  date: "November 16, 2024",
   category: "news",
-  coords: [41.8236, -71.4122],
-  snippet: "Residents reported a metallic smell rising from storm drains late at night."
+  coords: [41.510885, -71.446273],
+  snippet: "Residents reported a rotten egg smell coming from the river."
 });
 
 posts.push({
-  title: "I Remember the Water Turning Dark",
-  date: "April 14, 1998",
+  title: "Don't Swim Too Deep",
+  date: "March 01, 2025",
   category: "memories",
   coords: [41.8250, -71.4105],
-  snippet: "My grandfather warned us not to swim there after the construction started."
+  snippet: "My grandfather warned us not to swim in the middle of the pond.  Said there were stories of missing kids."
 });
 
   const legend = L.control({ position: 'bottomright' });
@@ -228,6 +228,46 @@ legend.onAdd = function () {
   `;
   return div;
 };
+
+  .legend {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(0, 0, 0, 0.85);  /* darker background */
+  color: white;
+  padding: 16px 20px;               /* more internal space */
+  border-radius: 12px;
+  font-size: 15px;                  /* bigger text */
+  line-height: 1.6;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5); /* glow/shadow */
+  border: 2px solid #FF00FF;        /* neon accent */
+  max-width: 220px;
+  z-index: 1000;
+}
+
+.legend h4 {
+  margin: 0 0 10px 0;
+  font-size: 17px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255,255,255,0.3);
+  padding-bottom: 6px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.legend-color {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  border-radius: 50%;
+  border: 2px solid white;
+}
+
 
 legend.addTo(map);
 
