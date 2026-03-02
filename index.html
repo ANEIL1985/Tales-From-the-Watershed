@@ -8,125 +8,100 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
 <style>
-  html, body { height: 100%; margin: 0; font-family: Georgia, serif; }
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Georgia, serif;
+}
 
-  /* Header */
-  header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 80px;
-    background: #003366;
-    color: #fff;
-    z-index: 1200;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 8px 12px;
-    box-sizing: border-box;
-  }
-  header h1 { margin: 0; font-size: 1.25rem; }
-  header p { margin: 2px 0 0 0; font-size: 0.95rem; font-style: italic; color: #dbeafe; }
+/* HEADER */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: #003366;
+  color: #fff;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-  /* Map */
-  #map {
-    position: absolute;
-    top: 80px;            /* leave room for header */
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 1;
-  }
+header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+  letter-spacing: 1px;
+}
 
-  /* Sidebar (right) */
-  .sidebar {
-    position: fixed;
-    top: 0;
-    right: 0;
-    height: 100%;
-    width: 420px;
-    background: #fff;
-    z-index: 1400;
-    box-shadow: -4px 0 12px rgba(0,0,0,0.15);
-    padding: 18px;
-    box-sizing: border-box;
-    transition: transform 0.28s ease;
-    overflow-y: auto;
-    padding-bottom: 140px; /* generous bottom padding for long stories */
-  }
-  .sidebar.collapsed {
-    transform: translateX(100%); /* hide offscreen */
-  }
+/* MAP */
+#map {
+  position: absolute;
+  top: 80px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
 
-  /* Toggle button on left edge of sidebar */
-  #toggleSidebar {
-    position: fixed;
-    top: 24px;
-    right: 420px; /* sits just outside the sidebar */
-    width: 34px;
-    height: 34px;
-    border-radius: 6px;
-    background: #003366;
-    color: white;
-    border: none;
-    z-index: 1500;
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-    font-size: 18px;
-  }
+/* ABOUT BUTTON */
+#aboutButton {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 1500;
+  background: #003366;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 14px;
+  cursor: pointer;
+  font-size: 14px;
+}
 
-  /* Story list */
-  #storyList { margin-bottom: 16px; }
-  .storyItem {
-    background: #f8fbff;
-    padding: 10px;
-    margin-bottom: 8px;
-    border-radius: 6px;
-    cursor: pointer;
-    border: 1px solid rgba(30,64,175,0.06);
-  }
-  .storyItem:hover { background: #e7f2ff; }
+#aboutPopup {
+  position: fixed;
+  left: 16px;
+  bottom: 70px;
+  width: 300px;
+  background: white;
+  padding: 14px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+  z-index: 1500;
+  display: none;
+  border-radius: 8px;
+}
 
-  /* Story content */
-  #storyContent h2 { margin-top: 4px; margin-bottom: 6px; }
-  #storyContent p { line-height: 1.6; margin-bottom: 0.9rem; }
+/* LEGEND */
+.legend {
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 18px 22px;
+  border-radius: 14px;
+  font-size: 16px;
+  line-height: 1.7;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+  border: 2px solid #00BFFF;
+  max-width: 240px;
+}
 
-  /* About button (bottom-left) */
-  #aboutButton {
-    position: fixed;
-    left: 16px;
-    bottom: 16px;
-    z-index: 1500;
-    background: #003366;
-    color: #fff;
-    border: none;
-    border-radius: 8px;
-    padding: 8px 12px;
-    cursor: pointer;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  }
+.legend b {
+  font-size: 17px;
+  display: block;
+  margin-bottom: 10px;
+  letter-spacing: 1px;
+}
 
-  /* About popup */
-  #aboutPopup {
-    position: fixed;
-    left: 16px;
-    bottom: 64px;
-    width: 300px;
-    background: white;
-    padding: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.18);
-    z-index: 1500;
-    display: none;
-    border-radius: 6px;
-  }
+.legend span {
+  font-size: 18px;
+  margin-right: 6px;
+}
 
-  /* Small responsive tweak */
-  @media (max-width: 900px) {
-    .sidebar { width: 320px; }
-    #toggleSidebar { right: 320px; }
-  }
+/* Make markers glow */
+.leaflet-interactive {
+  filter: drop-shadow(0 0 6px rgba(255,255,255,0.8));
+}
 </style>
 </head>
 <body>
@@ -137,150 +112,138 @@
 
 <div id="map"></div>
 
-<!-- About -->
 <button id="aboutButton">About</button>
 <div id="aboutPopup">
-  <p style="margin-top:6px;">
-    Inspired by the watershed. From the mind of neilion22@gmail.com.
-  </p>
+  Inspired by the watershed.<br><br>
+  From the mind of neilion22@gmail.com
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-/* ---------------------------
-   Map + UI initialization
-   --------------------------- */
-const map = L.map('map', { preferCanvas: true }).setView([41.5134, -71.4477], 13);
 
-L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-  attribution: '&copy; Esri, Maxar, Earthstar Geographics',
-  maxZoom: 19
-}).addTo(map);
+/* =========================
+   MAP INITIALIZATION
+========================= */
+const map = L.map('map', { preferCanvas: true })
+  .setView([41.5134, -71.4477], 13);
 
-  // empty array for future posts
-const posts = [];
+L.tileLayer(
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  {
+    attribution: '&copy; Esri, Maxar, Earthstar Geographics',
+    maxZoom: 19
+  }
+).addTo(map);
 
-  // keep markers for later reference
-const markers = [];
 
-
-  const categoryStyles = {
-  community: { color: '#00FFFF', fillColor: '#00FFFF' },     // cyan
-  historical: { color: '#FFD700', fillColor: '#FFD700' },    // gold
-  news: { color: '#FF4500', fillColor: '#FF4500' },          // orange-red
-  police: { color: '#0000FF', fillColor: '#0000FF' },        // blue
-  memories: { color: '#32CD32', fillColor: '#32CD32' }       // green
+/* =========================
+   CATEGORY STYLES
+========================= */
+const categoryStyles = {
+  community: { color: '#00FFFF', fillColor: '#00FFFF' },
+  historical: { color: '#FFD700', fillColor: '#FFD700' },
+  news: { color: '#FF3300', fillColor: '#FF3300' },
+  police: { color: '#0066FF', fillColor: '#0066FF' },
+  memories: { color: '#32CD32', fillColor: '#32CD32' }
 };
 
-function addPost(post, index) {
+
+/* =========================
+   POSTS
+========================= */
+const posts = [
+  {
+    title: "Strange Odor Reported Near the River",
+    date: "November 16, 2024",
+    category: "news",
+    coords: [41.510885, -71.446273],
+    snippet: "Residents reported a rotten egg smell coming from the river."
+  },
+  {
+    title: "Don't Swim Too Deep",
+    date: "March 01, 2025",
+    category: "memories",
+    coords: [41.513744603803325, -71.44777539056291],
+    snippet: "My grandfather warned us not to swim in the middle of the pond. Said there were stories of missing kids."
+  }
+];
+
+
+/* =========================
+   ADD POSTS TO MAP
+========================= */
+posts.forEach(post => {
+
   const style = categoryStyles[post.category];
 
   const popup = `
     <b>${post.title}</b><br>
-    <small>${post.date} | ${post.category.toUpperCase()}</small><br>
-    <p>${post.snippet}</p>
-    <a href="#" class="readMoreLink" data-index="${index}">Read More</a>
+    <small>${post.date} | ${post.category.toUpperCase()}</small><br><br>
+    ${post.snippet}
   `;
 
-  const marker = L.circleMarker(post.coords, {
-    radius: 9,
+  L.circleMarker(post.coords, {
+    radius: 12,
     color: style.color,
     fillColor: style.fillColor,
-    fillOpacity: 0.9,
-    weight: 2
-  }).addTo(map).bindPopup(popup);
+    fillOpacity: 1,
+    weight: 3
+  })
+  .addTo(map)
+  .bindPopup(popup);
 
-  // hover effect
-  marker.on('mouseover', () => marker.setStyle({ radius: 13 }));
-  marker.on('mouseout', () => marker.setStyle({ radius: 9 }));
-
-  markers.push(marker);
-}
-
-
-  posts.push({
-  title: "Strange Odor Reported Near the River",
-  date: "November 16, 2024",
-  category: "news",
-  coords: [41.510885, -71.446273],
-  snippet: "Residents reported a rotten egg smell coming from the river."
 });
 
-posts.push({
-  title: "Don't Swim Too Deep",
-  date: "March 01, 2025",
-  category: "memories",
-  coords: [41.513744603803325, -71.44777539056291],
-  snippet: "My grandfather warned us not to swim in the middle of the pond.  Said there were stories of missing kids."
-});
 
-  const legend = L.control({ position: 'bottomright' });
+/* =========================
+   LEGEND
+========================= */
+const legend = L.control({ position: 'bottomright' });
 
 legend.onAdd = function () {
   const div = L.DomUtil.create('div', 'legend');
   div.innerHTML = `
-    <b>Post Types</b><br>
+    <b>Post Types</b>
     <span style="color:#00FFFF">●</span> Community<br>
     <span style="color:#FFD700">●</span> Historical<br>
-    <span style="color:#FF4500">●</span> News Report<br>
-    <span style="color:#0000FF">●</span> Police Report<br>
+    <span style="color:#FF3300">●</span> News Report<br>
+    <span style="color:#0066FF">●</span> Police Report<br>
     <span style="color:#32CD32">●</span> Memories
   `;
   return div;
 };
 
-  .legend {
-  position: absolute;
-  bottom: 20px;
-  right: 20px;
-  background: rgba(0, 0, 0, 0.85);  /* darker background */
-  color: white;
-  padding: 16px 20px;               /* more internal space */
-  border-radius: 12px;
-  font-size: 15px;                  /* bigger text */
-  line-height: 1.6;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.5); /* glow/shadow */
-  border: 2px solid #FF00FF;        /* neon accent */
-  max-width: 220px;
-  z-index: 1000;
-}
-
-.legend h4 {
-  margin: 0 0 10px 0;
-  font-size: 17px;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  border-bottom: 1px solid rgba(255,255,255,0.3);
-  padding-bottom: 6px;
-}
-
-.legend-item {
-  display: flex;
-  align-items: center;
-  margin-bottom: 6px;
-}
-
-.legend-color {
-  width: 16px;
-  height: 16px;
-  margin-right: 8px;
-  border-radius: 50%;
-  border: 2px solid white;
-}
-
-
 legend.addTo(map);
 
 
-/* Watershed boundary (ObjectID 8) */
+/* =========================
+   WATERSHED BOUNDARY
+========================= */
 fetch("https://services2.arcgis.com/S8zZg9pg23JUEexQ/arcgis/rest/services/HYDRO_Watersheds_HUC12/FeatureServer/6/query?where=OBJECTID=8&outFields=*&f=geojson")
   .then(r => r.json())
   .then(geojson => {
     L.geoJSON(geojson, {
-      style: { color: '#00BFFF', weight: 2, fillOpacity: 0.12 }
+      style: {
+        color: '#00BFFF',
+        weight: 3,
+        fillOpacity: 0.08
+      }
     }).addTo(map);
-  })
-  .catch(err => console.error('Watershed load error:', err));
+  });
+
+
+/* =========================
+   ABOUT BUTTON TOGGLE
+========================= */
+const aboutBtn = document.getElementById("aboutButton");
+const aboutPopup = document.getElementById("aboutPopup");
+
+aboutBtn.onclick = () => {
+  aboutPopup.style.display =
+    aboutPopup.style.display === "block" ? "none" : "block";
+};
+
 </script>
 </body>
 </html>
+
