@@ -176,23 +176,34 @@ posts.forEach(post => {
 
   const style = categoryStyles[post.category];
 
-  const popup = `
-    <b>${post.title}</b><br>
-    <small>${post.date} | ${post.category.toUpperCase()}</small><br><br>
-    ${post.snippet}
+  // format coordinates nicely
+  const lat = post.coords[0].toFixed(5);
+  const lng = post.coords[1].toFixed(5);
+
+  const popupContent = `
+    <div style="font-family: Georgia, serif;">
+      <strong style="font-size:16px;">${post.title}</strong><br><br>
+
+      <strong>Category:</strong> ${post.category}<br>
+      <strong>Date:</strong> ${post.date}<br>
+      <strong>Coordinates:</strong> ${lat}, ${lng}<br><br>
+
+      <em>${post.snippet}</em>
+    </div>
   `;
 
-  L.circleMarker(post.coords, {
+  const marker = L.circleMarker(post.coords, {
     radius: 8,
     color: style.color,
     fillColor: style.fillColor,
     fillOpacity: 1,
-    weight: 3
+    weight: 2
   })
   .addTo(map)
-  .bindPopup(popup);
+  .bindPopup(popupContent);
 
 });
+
 
 
 /* =========================
