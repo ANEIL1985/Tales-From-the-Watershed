@@ -115,7 +115,9 @@ header h1 {
 <button id="aboutButton">About</button>
 <div id="aboutPopup">
   Inspired by the watershed.<br><br>
-  From the mind of neilion22@gmail.com
+  From the mind of Lein Werdna.  
+  talesfromthewatershed@gmail.com
+
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -141,7 +143,7 @@ L.tileLayer(
 ========================= */
 const categoryStyles = {
   community: { color: '#00FFFF', fillColor: '#00FFFF' },
-  historical: { color: '#FFD700', fillColor: '#FFD700' },
+  archives: { color: '#FFD700', fillColor: '#FFD700' },
   news: { color: '#FF3300', fillColor: '#FF3300' },
   police: { color: '#0066FF', fillColor: '#0066FF' },
   memories: { color: '#32CD32', fillColor: '#32CD32' }
@@ -216,7 +218,7 @@ legend.onAdd = function () {
   div.innerHTML = `
     <b>Post Types</b>
     <span style="color:#00FFFF">●</span> Community<br>
-    <span style="color:#FFD700">●</span> Historical<br>
+    <span style="color:#FFD700">●</span> Archives<br>
     <span style="color:#FF3300">●</span> News Report<br>
     <span style="color:#0066FF">●</span> Police Report<br>
     <span style="color:#32CD32">●</span> Memories
