@@ -234,9 +234,9 @@ posts.forEach(post => {
   marker.bringToFront();
 
 const popupContent = `
-  <b>${post.title}</b><br>
+  <b>${style.icon} ${post.title}</b><br>
   <small>${post.date}</small><br><br>
-  <i>${post.snippet}</i>
+  ${post.snippet}
 `;
 
 marker.bindPopup(popupContent);
