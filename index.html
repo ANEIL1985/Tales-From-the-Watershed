@@ -187,7 +187,13 @@ posts.forEach(post => {
 
   marker.bringToFront();
 
-  marker.bindPopup("Test popup works");
+const popupContent = `
+  <b>${post.title}</b><br>
+  <small>${post.date}</small><br><br>
+  <i>${post.snippet}</i>
+`;
+
+marker.bindPopup(popupContent);
 
 });
 
