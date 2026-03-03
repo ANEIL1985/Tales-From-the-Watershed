@@ -142,13 +142,11 @@ L.tileLayer(
 ========================= */
 const categoryStyles = {
   Community: { color: '#00FFFF', fillColor: '#00FFFF' },
-  News: { color: '#FF3300', fillColor: '#FF3300' },
-  Police: { color: '#0066FF', fillColor: '#0066FF' },
-  Memories: { color: '#32CD32', fillColor: '#32CD32' }, 
+  Folklore: { color: '#FF3300', fillColor: '#FF3300' },
+  News: { color: '#0066FF', fillColor: '#0066FF' },
+  Ecological: { color: '#32CD32', fillColor: '#32CD32' }, 
   Geological: {color: '#5E4B3C',fillColor: '#8C6A4D'},
-  Ecological: {color: '#1B5E20',fillColor: '#4CAF50'},
   Cultural: {color: '#1A237E',fillColor: '#3F51B5'},
-  Folklore: {color: '#4A148C',fillColor: '#9C27B0'}
 }
 
 
@@ -254,11 +252,12 @@ legend.onAdd = function () {
   const div = L.DomUtil.create('div', 'legend');
   div.innerHTML = `
     <b>Post Types</b>
-    <span style="color:#00FFFF">●</span> Community<br>
-    <span style="color:#FFD700">●</span> Archives<br>
-    <span style="color:#FF3300">●</span> News Report<br>
-    <span style="color:#0066FF">●</span> Police Report<br>
-    <span style="color:#32CD32">●</span> Memories
+    <span style="color:#0066FF">●</span> News Report<br>
+    <span style="color:#00FFFF">●</span> Community Posts<br>
+    <span style="color:#FF3300">●</span> Folklore<br>
+    <span style="color:#8C6A4D">●</span> Geological History<br>
+    <span style="color:#32CD32">●</span> Ecological History <br>
+    <span style="color:#3F51B5">●</span> Cultural History
   `;
   return div;
 };
